@@ -1,0 +1,20 @@
+# Generated allocator output directories (created by setup.py / run.py)
+ffmalloc/
+ffmalloc+/
+glibc/
+jemalloc/
+lfmalloc/
+markus/
+mimalloc/
+msfmalloc/
+minesweeper/
+
+# Result and log files
+*.log
+*.res
+*.out
+*.err
+
+# Python cache
+__pycache__/
+*.pyc
