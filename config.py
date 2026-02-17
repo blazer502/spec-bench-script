@@ -89,18 +89,24 @@ class SpecVersion:
     config_file: str
     # Whether to strip the two trailing status-check lines from specinvoke output
     trim_tail: bool = False
+    # Binary path (relative to root) that only exists after install.sh is run.
+    # Used by check_spec_install() to detect an incomplete installation.
+    # SPEC 2006 installs specinvoke as a compiled binary (no specperl).
+    # SPEC 2017 installs specperl as its bundled Perl interpreter.
+    install_marker: str = "bin/specperl"
 
 
 _SPEC_VERSION_LIST: list[SpecVersion] = [
     SpecVersion(
         id="2006",
         root=HOME / "spec2006",
-        build_root=HOME / "cpu2006/spec",
+        build_root=HOME / "cpu2006",
         bench_subdir="benchspec/CPU2006",
         run_suffix=".0000",
         bench_list=PROJ_ROOT / "spec2006/bench-list",
         config_file="default.cfg",
         trim_tail=False,
+        install_marker="bin/specinvoke",  # SPEC 2006 has no specperl
     ),
     SpecVersion(
         id="2017",
@@ -111,6 +117,7 @@ _SPEC_VERSION_LIST: list[SpecVersion] = [
         bench_list=PROJ_ROOT / "spec2017/bench-list",
         config_file="baseline.cfg",
         trim_tail=True,
+        install_marker="bin/specperl",    # SPEC 2017 bundles specperl
     ),
 ]
 

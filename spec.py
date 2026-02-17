@@ -33,7 +33,7 @@ from config import (
     ALLOCATORS, DEFAULT_RUN_ORDER, SPEC_VERSIONS, TOOLS,
     Allocator, SpecVersion, Tool,
 )
-from utils import source_shrc
+from utils import check_spec_install, source_shrc, spec_run
 
 SCRIPTS_DIR = Path(__file__).parent / "scripts"
 BENCH_CONFIG = "baseline"
@@ -90,6 +90,7 @@ def _inject_commands(
 
 def cmd_setup(args: argparse.Namespace) -> None:
     spec: SpecVersion = SPEC_VERSIONS[args.version]
+    check_spec_install(spec.root, spec.install_marker)
     allocator: Allocator = ALLOCATORS[args.allocator]
     tool: Tool = TOOLS[args.tool]
     size: str = args.size
@@ -116,12 +117,12 @@ def cmd_setup(args: argparse.Namespace) -> None:
 
         print(f"{bench}...")
 
-        result = subprocess.run(
+        result = spec_run(
             ["specinvoke", "-nn"],
+            env=env,
             cwd=run_dir,
             capture_output=True,
             text=True,
-            env=env,
         )
         if result.returncode != 0:
             print(f"  specinvoke failed:\n{result.stderr}", file=sys.stderr)
@@ -182,8 +183,9 @@ def cmd_run(args: argparse.Namespace) -> None:
 
 def cmd_build(args: argparse.Namespace) -> None:
     spec: SpecVersion = SPEC_VERSIONS[args.version]
+    check_spec_install(spec.build_root, spec.install_marker)
     env = source_shrc(spec.build_root)
-    subprocess.run(
+    spec_run(
         [
             "runspec",
             f"--config={spec.config_file}",
@@ -195,8 +197,8 @@ def cmd_build(args: argparse.Namespace) -> None:
             "--tune", "all",
             "int", "fp",
         ],
-        cwd=spec.build_root,
         env=env,
+        cwd=spec.build_root,
         check=True,
     )
 
